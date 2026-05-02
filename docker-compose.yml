@@ -1,36 +1,44 @@
 version: '3'
 services:
     ebot-web:
-        build:
-            context: ./ebot-web
+        image: ghcr.io/npetersendk/ebot-csgo-web:latest
+        restart: always
         environment:
             - EBOT_ADMIN_LOGIN
             - EBOT_ADMIN_PASSWORD
             - EBOT_ADMIN_EMAIL
+            - EBOT_ADMIN_FIRSTNAME
+            - EBOT_ADMIN_LASTNAME
+            - MYSQL_HOST=mysqldb
+            - MYSQL_DATABASE
+            - MYSQL_USER
+            - MYSQL_PASSWORD
         volumes:
             - "eBotWebVolume:/app/eBot-CSGO-Web"
             - "./ebot-logs:/app/ebot-logs"
             - "./ebot-demos:/app/ebot-demos"
             - "./etc/eBotWeb/app_user.yml:/app/eBot-CSGO-Web/config/app_user.yml"
+            - "./etc/eBotWeb/app.yml:/app/eBot-CSGO-Web/config/app.yml"
             - "./etc/eBotWeb/databases.yml:/app/eBot-CSGO-Web/config/databases.yml"
         depends_on:
             - mysqldb
+
     ebot-socket:
-        build:
-            context: ./ebot-socket
+        image: "ghcr.io/npetersendk/ebot-csgo:latest"
+        restart: always
         ports:
             - "12360:12360"
         volumes:
             - "./ebot-logs:/app/eBot-CSGO/logs"
             - "./ebot-demos:/app/eBot-CSGO/demos"
-            - "./etc/eBotSocket/config.ini:/app/eBot-CSGO/config/config.ini"
+            - "./etc/eBotSocket/config.ini:/app/config/config.ini"
         depends_on:
             - mysqldb
             - ebot-web
             - redis
     ebot-logs-receiver:
-        build:
-            context: ./ebot-logs-receiver
+        image: ghcr.io/npetersendk/ebot-project:latest
+        restart: always
         ports:
             - "12345:12345"
         volumes:
